@@ -1,0 +1,36 @@
+hostname Acc-Via2
+!
+ip vrf SIGNALING
+  rd 1:1
+  route-target export 1:1
+  route-target import 1:1
+!
+interface Loopback0
+  ip address 10.255.255.6 255.255.255.255
+!
+interface GigabitEthernet1/0
+  description Enlace a Dist-SantaFe
+  ip address 10.0.0.22 255.255.255.252
+  mpls ip
+!
+interface GigabitEthernet2/0
+  description Acceso Vía 2 - Señalización
+  ip vrf forwarding SIGNALING
+  ip address 192.168.11.1 255.255.255.0
+!
+router ospf 1
+  router-id 10.255.255.6
+  network 10.0.0.20 0.0.0.3 area 0
+  network 10.255.255.6 0.0.0.0 area 0
+!
+router bgp 65000
+  bgp router-id 10.255.255.6
+  neighbor 10.255.255.5 remote-as 65000
+  neighbor 10.255.255.5 update-source Loopback0
+  address-family vpnv4
+    neighbor 10.255.255.5 activate
+    neighbor 10.255.255.5 send-community both
+  exit-address-family
+  address-family ipv4 vrf SIGNALING
+    redistribute connected
+  exit-address-family
