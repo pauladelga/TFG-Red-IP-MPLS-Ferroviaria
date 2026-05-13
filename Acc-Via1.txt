@@ -1,0 +1,42 @@
+hostname Acc-Via1
+!
+ip vrf SIGNALING
+  rd 1:1
+  route-target export 1:1
+  route-target import 1:1
+!
+ip vrf CCTV
+  rd 2:2
+  route-target export 2:2
+  route-target import 2:2
+!
+interface Loopback0
+  ip address 10.255.255.5 255.255.255.255
+!
+interface GigabitEthernet1/0
+  description Enlace a Dist-Lerma
+  ip address 10.0.0.18 255.255.255.252
+  mpls ip
+!
+interface GigabitEthernet2/0
+  description Acceso Vía 1 - Señalización
+  ip vrf forwarding SIGNALING
+  ip address 192.168.10.1 255.255.255.0
+!
+router ospf 1
+  router-id 10.255.255.5
+  network 10.0.0.16 0.0.0.3 area 0
+  network 10.255.255.5 0.0.0.0 area 0
+!
+router bgp 65000
+  bgp router-id 10.255.255.5
+  neighbor 10.255.255.6 remote-as 65000
+  neighbor 10.255.255.6 update-source Loopback0
+  address-family vpnv4
+
+    neighbor 10.255.255.6 activate
+    neighbor 10.255.255.6 send-community both
+  exit-address-family
+  address-family ipv4 vrf SIGNALING
+    redistribute connected
+  exit-address-family
