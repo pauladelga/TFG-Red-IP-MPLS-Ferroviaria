@@ -1,0 +1,21 @@
+hostname Core-Obs
+!
+interface Loopback0
+  ip address 10.255.255.1 255.255.255.255
+!
+interface GigabitEthernet1/0
+  ip address 10.0.0.1 255.255.255.252
+  mpls ip
+!
+interface GigabitEthernet2/0
+  ip address 10.0.0.5 255.255.255.252
+  mpls ip
+!
+interface GigabitEthernet3/0
+  ip address 10.0.0.9 255.255.255.252
+  mpls ip
+!
+router ospf 1
+  router-id 10.255.255.1
+  network 10.0.0.0 0.0.0.11 area 0
+  network 10.255.255.1 0.0.0.0 area 0
